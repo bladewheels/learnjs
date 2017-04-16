@@ -14,9 +14,14 @@ learnjs.applyObject = function(obj, elem) {
     elem.find('[data-name="' + key + '"]').text(obj[key]);
   }
 };
+
+learnjs.template = function(name) {
+  return $('.templates .' + name).clone();
+}
+
 learnjs.problemView = function(data) {
   var problemNumber = parseInt(data, 10);
-  var view = $('.templates .problem-view').clone();
+  var view = learnjs.template('problem-view');
   var problemData = learnjs.problems[problemNumber - 1];
   var resultFlash = view.find('.result');
 
@@ -28,13 +33,15 @@ learnjs.problemView = function(data) {
 
   function checkAnswerClick() {
     if (checkAnswer()) {
-      resultFlash.text('Correct!');
+      var correctFlash = learnjs.template('correct-flash');
+      correctFlash.find('a').attr('href', '#problem-' + (problemNumber + 1));
+      learnjs.flashElement(resultFlash, correctFlash);
     } else {
-      resultFlash.text('Incorrect!');
+      learnjs.flashElement(resultFlash, 'Incorrect!');
     }
     return false;
   }
-  
+
   view.find('.check-btn').click(checkAnswerClick);
   view.find('.title').text(`Problem #${problemNumber}`);
   learnjs.applyObject(problemData, view);
@@ -50,6 +57,12 @@ learnjs.showView = function(hash) {
   if (viewFn) {
     $('.view-container').empty().append(viewFn(hashParts[1]));
   }
+}
+learnjs.flashElement = function(elem, content) {
+  elem.fadeOut('fast', function() {
+    elem.html(content);
+    elem.fadeIn();
+  });
 }
 
 learnjs.problems = [
